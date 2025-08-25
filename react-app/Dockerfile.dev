@@ -1,0 +1,15 @@
+# Dockerfile for DEV
+FROM node:20-alpine
+
+ARG APP_DIRECTORY=/app
+WORKDIR ${APP_DIRECTORY}
+
+COPY package.json .
+COPY package-lock.json .
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "start"]
