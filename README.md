@@ -10,7 +10,6 @@
 ## Getting Started
 
 1. **Run `Docker Destop` on your computer.**
-
 2. To run the `frontend` application with default settings:
 
 ```bash
