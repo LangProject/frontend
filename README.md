@@ -14,7 +14,7 @@
 
 ```bash
 # Run the Docker Compose stack from the /frontend directory
-docker compose up
+docker compose -f docker-compose.dev.yaml up
 ```
 
 The application will be available at: [**http://localhost:3000**](http://localhost:3000)
