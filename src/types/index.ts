@@ -6,6 +6,23 @@ export interface ApiResponse<T = unknown> {
   error?: string
 }
 
+// Backend response types
+export interface AuthResponse {
+  data: {
+    user: {
+      id: number
+      email: string
+      name: string
+      created_at: string
+      updated_at?: string
+    }
+    access_token: string
+    token_type: string
+  }
+  message: string
+  success: boolean
+}
+
 // User types
 export interface User {
   id: string

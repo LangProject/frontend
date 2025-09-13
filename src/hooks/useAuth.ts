@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { User, LoginCredentials, RegisterCredentials } from '@/types'
+import type { User, LoginCredentials, RegisterCredentials, AuthResponse } from '@/types'
+import { api } from '@/services/api'
 
 interface UseAuthReturn {
   user: User | null
@@ -34,20 +35,17 @@ export const useAuth = (): UseAuthReturn => {
   const login = async (credentials: LoginCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      // TODO: Implement actual login API call
-      console.log('Logging in with:', credentials)
+      const response = await api.post<AuthResponse>('/auth/login', credentials)
+      const { user, access_token } = response.data.data
       
-      // Mock successful login
-      const mockUser: User = {
-        id: '1',
-        email: credentials.email,
-        name: 'John Doe',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      
-      localStorage.setItem('auth_token', 'mock-token')
-      setUser(mockUser)
+      localStorage.setItem('auth_token', access_token)
+      setUser({
+        id: user.id.toString(),
+        email: user.email,
+        name: user.name,
+        createdAt: new Date(user.created_at),
+        updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
+      })
     } catch (error) {
       console.error('Login failed:', error)
       throw error
@@ -59,20 +57,21 @@ export const useAuth = (): UseAuthReturn => {
   const register = async (credentials: RegisterCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      // TODO: Implement actual registration API call
-      console.log('Registering with:', credentials)
-      
-      // Mock successful registration
-      const mockUser: User = {
-        id: '1',
-        email: credentials.email,
+      const response = await api.post<AuthResponse>('/auth/register', {
         name: credentials.name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+        email: credentials.email,
+        password: credentials.password,
+      })
+      const { user, access_token } = response.data.data
       
-      localStorage.setItem('auth_token', 'mock-token')
-      setUser(mockUser)
+      localStorage.setItem('auth_token', access_token)
+      setUser({
+        id: user.id.toString(),
+        email: user.email,
+        name: user.name,
+        createdAt: new Date(user.created_at),
+        updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
+      })
     } catch (error) {
       console.error('Registration failed:', error)
       throw error
