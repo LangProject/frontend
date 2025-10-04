@@ -71,14 +71,6 @@ export function RegisterForm({
 
     setIsLoading(true)
     try {
-      // TODO: Replace with actual API call to backend
-      console.log('Registration attempt:', { 
-        name: formData.name, 
-        email: formData.email, 
-        password: '***',
-        confirmPassword: '***'
-      })
-      
       await register({
         name: formData.name.trim(),
         email: formData.email,

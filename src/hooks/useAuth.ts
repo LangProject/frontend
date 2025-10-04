@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { User, LoginCredentials, RegisterCredentials, AuthResponse } from '@/types'
+import type { User, LoginCredentials, RegisterCredentials, AuthResponse, LoginResponse } from '@/types'
 import { api } from '@/services/api'
 
 interface UseAuthReturn {
@@ -35,16 +35,22 @@ export const useAuth = (): UseAuthReturn => {
   const login = async (credentials: LoginCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      const response = await api.post<AuthResponse>('/auth/login', credentials)
-      const { user, access_token } = response.data.data
+      const response = await api.post<LoginResponse>('/auth/login/', {
+        email: credentials.email,
+        password: credentials.password,
+      })
+      const responseData = response.data || response
+      const { access_token, refresh_token, user } = responseData as LoginResponse
       
       localStorage.setItem('auth_token', access_token)
+      localStorage.setItem('refresh_token', refresh_token)
+      
       setUser({
         id: user.id.toString(),
         email: user.email,
-        name: user.name,
-        createdAt: new Date(user.created_at),
-        updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
+        name: user.name || 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
     } catch (error) {
       console.error('Login failed:', error)
@@ -57,20 +63,20 @@ export const useAuth = (): UseAuthReturn => {
   const register = async (credentials: RegisterCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      const response = await api.post<AuthResponse>('/auth/register', {
-        name: credentials.name,
+      const response = await api.post<AuthResponse>('/auth/register/', {
         email: credentials.email,
         password: credentials.password,
       })
-      const { user, access_token } = response.data.data
+      // Handle the response - backend returns {email, id} directl
+      const responseData = response.data || response
+      const { email, id } = responseData as AuthResponse
       
-      localStorage.setItem('auth_token', access_token)
       setUser({
-        id: user.id.toString(),
-        email: user.email,
-        name: user.name,
-        createdAt: new Date(user.created_at),
-        updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
+        id: id.toString(),
+        email: email,
+        name: credentials.name, // Use the name from the form
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
     } catch (error) {
       console.error('Registration failed:', error)
@@ -82,6 +88,7 @@ export const useAuth = (): UseAuthReturn => {
 
   const logout = (): void => {
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('refresh_token')
     setUser(null)
   }
 

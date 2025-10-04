@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import type { ApiResponse } from '@/types'
 
-// API Configuration
+// API Configuration - Use direct backend URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 // Create axios instance

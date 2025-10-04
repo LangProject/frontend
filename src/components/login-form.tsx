@@ -57,9 +57,6 @@ export function LoginForm({
 
     setIsLoading(true)
     try {
-      // TODO: Replace with actual API call to backend
-      console.log('Login attempt:', { email: formData.email, password: '***' })
-      
       await login({
         email: formData.email,
         password: formData.password,
