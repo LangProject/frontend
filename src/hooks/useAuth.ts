@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { User, LoginCredentials, RegisterCredentials } from '@/types'
+import type { User, LoginCredentials, RegisterCredentials, AuthResponse, LoginResponse } from '@/types'
+import { api } from '@/services/api'
 
 interface UseAuthReturn {
   user: User | null
@@ -34,20 +35,23 @@ export const useAuth = (): UseAuthReturn => {
   const login = async (credentials: LoginCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      // TODO: Implement actual login API call
-      console.log('Logging in with:', credentials)
-      
-      // Mock successful login
-      const mockUser: User = {
-        id: '1',
+      const response = await api.post<LoginResponse>('/auth/login/', {
         email: credentials.email,
-        name: 'John Doe',
+        password: credentials.password,
+      })
+      const responseData = response.data || response
+      const { access_token, refresh_token, user } = responseData as LoginResponse
+      
+      localStorage.setItem('auth_token', access_token)
+      localStorage.setItem('refresh_token', refresh_token)
+      
+      setUser({
+        id: user.id.toString(),
+        email: user.email,
+        name: user.name || 'User',
         createdAt: new Date(),
         updatedAt: new Date(),
-      }
-      
-      localStorage.setItem('auth_token', 'mock-token')
-      setUser(mockUser)
+      })
     } catch (error) {
       console.error('Login failed:', error)
       throw error
@@ -59,20 +63,21 @@ export const useAuth = (): UseAuthReturn => {
   const register = async (credentials: RegisterCredentials): Promise<void> => {
     setIsLoading(true)
     try {
-      // TODO: Implement actual registration API call
-      console.log('Registering with:', credentials)
-      
-      // Mock successful registration
-      const mockUser: User = {
-        id: '1',
+      const response = await api.post<AuthResponse>('/auth/register/', {
         email: credentials.email,
-        name: credentials.name,
+        password: credentials.password,
+      })
+      // Handle the response - backend returns {email, id} directl
+      const responseData = response.data || response
+      const { email, id } = responseData as AuthResponse
+      
+      setUser({
+        id: id.toString(),
+        email: email,
+        name: credentials.name, // Use the name from the form
         createdAt: new Date(),
         updatedAt: new Date(),
-      }
-      
-      localStorage.setItem('auth_token', 'mock-token')
-      setUser(mockUser)
+      })
     } catch (error) {
       console.error('Registration failed:', error)
       throw error
@@ -83,6 +88,7 @@ export const useAuth = (): UseAuthReturn => {
 
   const logout = (): void => {
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('refresh_token')
     setUser(null)
   }
 

@@ -1,9 +1,26 @@
 // API Response types
 export interface ApiResponse<T = unknown> {
-  data: T
+  data?: T
   message?: string
-  success: boolean
+  success?: boolean
   error?: string
+}
+
+// Backend response types
+export interface AuthResponse {
+  email: string
+  id: number
+}
+
+export interface LoginResponse {
+  access_token: string
+  refresh_token: string
+  token_type: string
+  user: {
+    email: string
+    id: number
+    name?: string
+  }
 }
 
 // User types
